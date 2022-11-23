@@ -168,6 +168,10 @@ print(' ')
 # Creating the data-frame for the csv file with problems
 df = pd.read_csv('ProblemDetails-PCA.csv')
 
+# Changing the Image Size
+plt.rcParams["figure.figsize"] = [10.0, 5.0]
+plt.rcParams["figure.autolayout"] = True
+
 # Getting the number of records
 n_val = df['Sl. No.'].count()
 # Getting the number of questions to be generated
