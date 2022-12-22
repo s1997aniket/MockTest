@@ -87,9 +87,10 @@ def takeTest(question_list, d_frame, r):
         if chc == 'a' or chc == 'b' or chc == 'c' or chc == 'd':
             if count == r:
                 answers[count - 1] = chc
+                count -= 1
 
             else:
-                answers[count-1] = chc
+                answers[count - 1] = chc
                 count += 1
 
         elif chc == '1':
