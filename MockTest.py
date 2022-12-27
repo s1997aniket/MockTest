@@ -90,7 +90,7 @@ def takeTest(question_list, d_frame, r):
                 count -= 1
 
             else:
-                answers[count - 1] = chc
+                answers[count-1] = chc
                 count += 1
 
         elif chc == '1':
@@ -124,9 +124,13 @@ def takeTest(question_list, d_frame, r):
 
     # Print questions for reference
     print(' ')
-    print('Question No. \t Question List \t Selected options \t Correct options ')
+    print('Question No. \t Question List \t Selected options \t Correct options \t Topic ')
     for x in range(r):
-        line = str(x+1)+'\t \t'+str(question_list[x])+'\t \t'+str(answers[x])+'\t \t'+str(correct_ans[x])
+        q_no = question_list[x]
+        q_top = d_frame.iloc[q_no - 1, 3]
+        line = str(x+1)+'\t \t'+str(question_list[x])+'\t \t'\
+               + str(answers[x])+'\t \t'+str(correct_ans[x])\
+               + '\t \t'+str(q_top)
         print(line)
     print_questions(question_list, d_frame)
 
@@ -147,6 +151,55 @@ def get_question_list(n, r):
     return questions
 
 
+def get_topic_question_list(d_frame, topic_code, n, r):
+    questions = []
+    repeat = False
+    while len(questions) <= (r-1):
+        q_no = random.choice(range(1, n+1))
+        # Check for repeats
+        for x in questions:
+            if q_no == x:
+                repeat = True
+        if repeat == False and topic_code == d_frame.iloc[q_no-1, 3]:
+            questions.append(q_no)
+        repeat = False
+
+    return questions
+
+
+def get_weighted_question_list(d_frame, n, wts):
+    # print('start')
+    questions = []
+    repeat = False
+    i = 0  # i in [0,11]
+    j = 0
+
+    # Outer loop to get all questions
+    while i < 12:
+        # Inner loop to reset the topics
+        topic_code = wts[i][0]
+        r = wts[i][1]
+        j += r
+        # print(r)
+        # print(topic_code)
+
+        while len(questions) < j:
+            q_no = random.choice(range(1, n+1))
+            # Check for repeats
+            for x in questions:
+                if q_no == x:
+                    repeat = True
+            if repeat == False and topic_code == d_frame.iloc[q_no-1, 3]:
+                questions.append(q_no)
+
+            repeat = False
+        i += 1
+    # print(questions)
+    # print('end')
+    random.shuffle(questions)
+    return questions
+
+
 def print_questions(question_list, d_frame):
     for x in range(len(question_list)):
         q_no = question_list[x]
@@ -158,13 +211,10 @@ def time_end():
     print(' ')
     for x in range(5):
         print('TIME IS UP!')
-        time.sleep(1)
+        time.sleep(2)
 
 
 # Main Code
-print('WELCOME TO THE MOCK-TEST APP!')
-print('TAKE A MOCK TEST!')
-print(' ')
 
 # Creating the data-frame for the csv file with problems
 df = pd.read_csv('ProblemDetails-PCA.csv')
@@ -175,11 +225,32 @@ plt.rcParams["figure.autolayout"] = True
 
 # Getting the number of records
 n_val = df['Sl. No.'].count()
-# Getting the number of questions to be generated
-r_val = int(input("Enter the number of questions: "))
+# Default number of questions to be generated
+r_val = 30
+
+# Program Begins
+print('WELCOME TO MOCKY!')
+print('TAKE A MOCK TEST')
 print(' ')
-# Getting the list of questions for the test
-q_list = get_question_list(n_val, r_val)
+
+# Enter Topic Code
+print('Enter Topic Code: ')
+print(' ')
+print('ALL	All Topics 244')
+print('AL	Algebra	51')
+print('CA	Calculus	38')
+print('CG	Co-ordinte Geometry	17')
+print('COM	Combinatorics	17')
+print('DE	Differential Equations	13')
+print('GRP	Group Theory	9')
+print('LA	Linear Algebra	31')
+print('MVC	Multivariable Calculus	11')
+print('NT	Number Theory	16')
+print('PRB	Probability	16')
+print('RA	Real Analysis	20')
+print('TRI	Trigonometry	5')
+top = input()
+print(' ')
 
 # Inputs for hours, minutes, seconds on timer
 h = int(input("Enter the time in hours: "))
@@ -190,7 +261,27 @@ print(' ')
 # Calculate the total number of seconds
 total_seconds = h * 3600 + m * 60 + s
 
+# Getting the list of questions for the test
+if top == 'ALL':
+    print('Enter w for weighted, and r for random')
+    wt = input()
+    if wt == 'r':
+        q_list = get_question_list(n_val, r_val)
+
+    elif wt == 'w':
+        weights = [['AL', 6], ['CA', 5], ['CG', 2],
+                   ['COM', 2], ['DE', 2], ['GRP', 1],
+                   ['LA', 4], ['MVC', 1], ['NT', 2],
+                   ['PRB', 2], ['RA', 2], ['TRI', 1]]
+        q_list = get_weighted_question_list(df, n_val, weights)
+else:
+    print('Enter no of questions: ')
+    r_val = int(input())
+    q_list = get_topic_question_list(df, top, n_val, r_val)
+
+
 S = th.Timer(total_seconds, time_end)
 S.start()
+
 takeTest(q_list, df, r_val)
 
