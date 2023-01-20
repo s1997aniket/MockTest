@@ -22,7 +22,12 @@ def showQuestions(q_no, q_name):
 
 def checkSolution(question_list, answers, d_frame):
     score = 0
+    corr = 0
+    skipped = 0
+    incorrect = 0
+
     correct_answers = []
+
     print('YOUR RESULTS: ')
     for x in range(1, len(answers)+1):
         q_no = question_list[x - 1]
@@ -31,30 +36,25 @@ def checkSolution(question_list, answers, d_frame):
         correct_answers.append(correct)
 
         if selected == correct:
-            print('Question '+str(x)+':')
-            print('Correct!')
-            print('Correct answer: ' + correct)
-            print('Your Answer: ' + selected)
-            print(' ')
+            corr += 1
+            comp_ques.append(q_no)
             score += 4
 
         elif selected == 'x':
-            print('Question ' + str(x) + ':')
-            print('Skipped!')
-            print(' ')
+            skipped += 1
             score += 1
 
         elif selected != correct:
-            print('Question '+str(x)+':')
-            print('Incorrect!')
-            print('Correct answer: ' + correct)
-            print('Your Answer: ' + selected)
-            print(' ')
+            incorrect += 1
             continue
 
     print(' ')
     print('MAXIMUM SCORE: ' + str(4*len(answers)))
     print('TOTAL SCORE: ' + str(score))
+    print(' ')
+    print('CORRECT: ' + str(corr))
+    print('INCORRECT: ' + str(incorrect))
+    print('SKIPPED: ' + str(skipped))
 
     return correct_answers
 
@@ -124,14 +124,22 @@ def takeTest(question_list, d_frame, r):
 
     # Print questions for reference
     print(' ')
-    print('Question No. \t Question List \t Selected options \t Correct options \t Topic ')
+    print('Question No. \t Question List \t Selected options \t Correct options \t Status \t Topic ')
     for x in range(r):
         q_no = question_list[x]
         q_top = d_frame.iloc[q_no - 1, 3]
+        status = 'Incorrect'
+
+        if answers[x] == correct_ans[x]:
+            status = 'Correct'
+        elif answers[x] == 'x':
+            status = 'Skipped'
+
         line = str(x+1)+'\t \t'+str(question_list[x])+'\t \t'\
                + str(answers[x])+'\t \t'+str(correct_ans[x])\
-               + '\t \t'+str(q_top)
+               + '\t \t'+status + '\t \t'+str(q_top)
         print(line)
+
     print_questions(question_list, d_frame)
 
 
@@ -175,7 +183,7 @@ def get_weighted_question_list(d_frame, n, wts):
     j = 0
 
     # Outer loop to get all questions
-    while i < 12:
+    while i < len(wts):
         # Inner loop to reset the topics
         topic_code = wts[i][0]
         r = wts[i][1]
