@@ -237,7 +237,6 @@ n_val = df['Sl. No.'].count()
 r_val = 30
 
 # Program Begins
-print('WELCOME TO MOCKY!')
 print('TAKE A MOCK TEST')
 print(' ')
 
